@@ -1,10 +1,78 @@
+import subprocess
 import os
 import ssl
 from irods.session import iRODSSession
 from utils import remove_file_from_cache
+import json
+
 
 # implementation of the python client found here:
 # https://github.com/irods/python-irodsclient
+
+
+def create_irods_env(username: str) -> str:
+    file_exists = subprocess.run(
+        ['test', '-f', '~/.irods/irods_environment.json'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True
+    )
+
+    if file_exists:
+        subprocess.run(
+            ['rm', '~/.irods/irods_environment.json'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
+
+    else:
+        # if the config file doesn't exist, we create the folder and environment file
+        subprocess.run(
+            ['cd', '~', '&&', 'mkdir', '.irods'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )    
+
+    subprocess.run(
+        ['cd', '~/.irods', '&&', 'touch', 'irods_environment.json'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True
+    )
+    #and populate with the irods_environment.json -> write json in Python
+    #remove all content and write on it
+    env_data = {
+        "irods_zone_name": "iplant",
+        "irods_host": "data.cyverse.org",
+        "irods_port": 1247,
+        "irods_user_name": username
+    }
+
+    with open('~/.irods/irods_environment.json', 'w', encoding='utf-8') as f:
+        json.dump(env_data, f, ensure_ascii=False, indent=4)
+
+    # set the environement variable of IRODS_ENVIRONMENT_FILE to the address of the configuration file
+    subprocess.run(
+        ['export', '$IRODS_ENVIRONMENT_FILE=~/.irods/irods_environment.json'],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        universal_newlines=True
+    )
+
+    return '~/.irods/irods_environment.json'
+
+
+
+    
+# {
+#     "irods_zone_name": "iplant",
+#     "irods_host": "data.cyverse.org",
+#     "irods_port": 1247,
+#     "irods_user_name": "noecarras"
+# }
+
 
 
 def getIRODSSession(timeout = 300):

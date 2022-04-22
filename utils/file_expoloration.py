@@ -1,7 +1,5 @@
-from asyncio import subprocess
 from datetime import datetime
 import os
-from threading import local
 from typing import List
 from utils.cyverse_files import findall_files
 from utils.cyverse_io_irods import IRODSPut

@@ -1,53 +1,44 @@
 import os
 import subprocess
 from typing import List
+from utils import local_temp_folder, local_long_folder
 
-# TODO: rehandle cache creation in the beginning
-local_temp_folder = '/Users/noecarras/Documents/03_Berkeley_EECS/cours/Capstone_RL_validation/capstone_circles_rl_validation/server/temp_cache/'
-
-
-def init_cache(cache_kind: str = None):
+def init_cache(long: bool = False) -> str:
     '''
-    clears the cache if exists and initialise it
-    :param kind: subfolder within the temp cache
-    :param full_root: root of the cache file if not in ./server/temp_cache Use global variables here!
+    clears the temp cache if exists and initialises it
+    :param long: set to true to initialize the long lasting cache folder.
     :return: cache address
-    
-    note:   here, the local folder is /server/temp_cache/               (here only the temp folders are used)
-            the kind folder is fileshare_exploration for instance       (if you are working with this)
     '''
     try:
-        if cache_kind is not None:
-            cache_path = os.path.join(local_temp_folder, cache_kind)
+        if long:
+            cache = local_long_folder
         else:
-            cache_path = local_temp_folder
+            cache = local_temp_folder
 
-        print(cache_path)
-
-        subprocess.run(['rm', '-r', cache_path],
+        subprocess.run(['rm', '-r', cache],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     universal_newlines=True)
 
-        subprocess.run(['mkdir', cache_path],
+        subprocess.run(['mkdir', cache],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     universal_newlines=True)
-        
-        return cache_path
+
+        return cache
     
     except Exception as e:
-        raise Exception(f'Error while trying to init {cache_kind} in cache.\nFailed on: {e}')
+        raise Exception(f'Error while trying to init cache.\nFailed on: {e}')
+    
 
-
-def remove_file_from_cache(file_address: str):
+def remove_file_from_cache(file_address: str) -> str:
     '''
     Removes one file locally from path
     :param file_address: Path to the file to delete. It needs to be located either in temp_cache or long_cache to be deleted.
     :return: file_address once the file has been deleted.
     '''
     try:
-        if (file_address) and ('temp_cache' in file_address):
+        if (file_address) and ((local_temp_folder in file_address) or (local_long_folder in file_address)):
             subprocess.run(['rm', file_address],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
@@ -60,32 +51,20 @@ def remove_file_from_cache(file_address: str):
     except Exception as e:
         raise Exception(f'Error while trying to remove {file_address} from Cache.\nFailed on: {e}')
 
-def get_all_files_from_cache_dir(cache_kind: str = None, full_root: str = None) -> List[str]:
+
+def get_all_files_from_cache_dir(long: bool = False) -> List[str]:
     '''
-    :param kind: subfolder within the temp cache
-    :param full_root: root of the cache file. Use global variables here!
+    :param long: set to true to target the long lasting cache folder.
     :return: List of path to the files within the root
     '''
-    cache_path = get_cache_path(cache_kind, full_root)
-    
     try:
-        files = [os.path.join(cache_path, f) for f in os.listdir(cache_path) if os.path.isfile(os.path.join(cache_path, f))]
+        if long:
+            cache = local_long_folder
+        else:
+            cache = local_temp_folder
+    
+        files = [os.path.join(cache, f) for f in os.listdir(cache) if os.path.isfile(os.path.join(cache, f))]
         return files
+
     except Exception as e:
-        raise Exception(f'Finding files in {cache_path} failed on {e}')
-
-
-def get_cache_path(cache_kind: str = None, full_root: str = None) -> str:
-    '''
-    :param kind: subfolder within the temp cache
-    :param full_root: root of the folder. Use global variables here!
-    :return: actual path of the desired cache
-    '''
-    if full_root:
-        cache_path = full_root
-    else:
-        cache_path = local_temp_folder
-
-    if cache_kind:
-        cache_path = os.path.join(cache_path, cache_kind)  
-    return cache_path
+        raise Exception(f'Finding files in {cache} failed on {e}')

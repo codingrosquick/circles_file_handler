@@ -20,14 +20,14 @@ Resources for more information:
 --------------------------------------------------------------
 '''
 
-# IMPORTS
+# ------------------ imports ------------------
 
 import os
 from global_variables import local_folder
 from utils import init_cache, create_irods_env
 
 
-# VARIABLES FOR THE TEST
+# ------------------ VARIABLES FOR THE TEST ------------------
 # Set both variables to False to do the configuration properly.
 
 # Set to true to skip the irods environment configuration

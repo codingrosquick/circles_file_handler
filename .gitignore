@@ -1,3 +1,8 @@
+# Local cachings
+temp_cache/
+long_cache/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

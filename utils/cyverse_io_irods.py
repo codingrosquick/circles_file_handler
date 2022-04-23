@@ -95,7 +95,8 @@ async def IRODSPut(remote_address: str, local_address: str, session = None, clea
     '''
     Wrapper for uploading files through IRODS
     :param remote_address: address on CyVerse to push the file to
-    :param local_address: local address of the file to upload. DO NOT PUT RELATIVE PATH!!!
+    :param local_address: local address of the file to upload.
+        (WARNING: DO NOT PUT A RELATIVE PATH, USE ABSOLUTE PATH!)
     :param session: python-irodsclient session object.  If not provided, creates it automatically.
     :param clean_file_from_cache: Defaults to False. If True, remove the file from cache after successful upload.
     :param new_object: Defaults to True. Set to false if you only want to modify an existing data object in CyVerse

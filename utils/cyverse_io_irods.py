@@ -10,39 +10,16 @@ import json
 # https://github.com/irods/python-irodsclient
 
 
-def create_irods_env(username: str) -> str:
-    file_exists = subprocess.run(
-        ['test', '-f', '~/.irods/irods_environment.json'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True
-    )
+def create_irods_env(username: str, local_user_folder: str) -> str:
+    env_path = os.path.join(local_user_folder, '.irods', 'irods_environment.json')
+    folder_path = os.path.join(local_user_folder, '.irods')
 
-    if file_exists:
-        subprocess.run(
-            ['rm', '~/.irods/irods_environment.json'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True
-        )
+    folder_exists = os.path.exists(folder_path)
 
-    else:
+    if not folder_exists:
         # if the config file doesn't exist, we create the folder and environment file
-        subprocess.run(
-            ['cd', '~', '&&', 'mkdir', '.irods'],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            universal_newlines=True
-        )    
+        os.mkdir(folder_path)
 
-    subprocess.run(
-        ['cd', '~/.irods', '&&', 'touch', 'irods_environment.json'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True
-    )
-    #and populate with the irods_environment.json -> write json in Python
-    #remove all content and write on it
     env_data = {
         "irods_zone_name": "iplant",
         "irods_host": "data.cyverse.org",
@@ -50,29 +27,10 @@ def create_irods_env(username: str) -> str:
         "irods_user_name": username
     }
 
-    with open('~/.irods/irods_environment.json', 'w', encoding='utf-8') as f:
+    with open(env_path, 'w', encoding='utf-8') as f:
         json.dump(env_data, f, ensure_ascii=False, indent=4)
 
-    # set the environement variable of IRODS_ENVIRONMENT_FILE to the address of the configuration file
-    subprocess.run(
-        ['export', '$IRODS_ENVIRONMENT_FILE=~/.irods/irods_environment.json'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        universal_newlines=True
-    )
-
-    return '~/.irods/irods_environment.json'
-
-
-
-    
-# {
-#     "irods_zone_name": "iplant",
-#     "irods_host": "data.cyverse.org",
-#     "irods_port": 1247,
-#     "irods_user_name": "noecarras"
-# }
-
+    return env_path
 
 
 def getIRODSSession(timeout = 300):

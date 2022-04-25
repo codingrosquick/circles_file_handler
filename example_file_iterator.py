@@ -61,8 +61,7 @@ you can look at the code example ./example_create_file_iteration.py.
 print('\n------------------------ CONFIGURATION OF THE FILE ITERATOR ------------------------\n')
 
 # Get Default explorations
-#UNCOMMENT ---------
-# loop.run_until_complete(FileIterator.get_default_explorations(clear_long_cache=True))
+loop.run_until_complete(FileIterator.get_default_explorations(clear_long_cache=True))
 print(f'\nDefault explorations have been pulled from CyVerse and are now available locally.')
 
 # Find the locally available explorations
@@ -95,22 +94,34 @@ By calling the next() method of the file iterator, it:
 For the demonstration of this file, we will simply print out the filename and not process them.
 
 NOTE: here, we can use the file iterator on CAN/GPS file couples. For the purposes of this
-explanation, we set the flag ignore_gps_file=False when downloading a new file. 
+explanation, we show how to do wiht or without the GPS file by setting the flag
+ignore_gps_file=False or True when downloading a new file.
 '''
 print('\n------------------------ ITERATING OVER THE FILES ------------------------\n')
 
+print('\nWithout downloading the GPS Files')
+for _ in range(FileIterator.max_index):
+    local_file_path = loop.run_until_complete(FileIterator.next(ignore_gps_file=True, verbose=True))
+    # --- THIS IS WHERE YOU CAN MAKE YOUR FILE PROCESSING ---
+    print(f'\nCurrent local address of the downloaded file is: {local_file_path}.\n\
+        It will now be deleted before downloading the next file.')
+print(f'\nThe iteration over the files (only CAN) is finished.')
+
+FileIterator.reset()
+print('\nThe File Iterator has been reset')
+
+print('\With downloading of the GPS Files')
 for _ in range(FileIterator.max_index):
     local_file_path = loop.run_until_complete(FileIterator.next(ignore_gps_file=False, verbose=True))
-    print(f'Current local address of the downloaded file is: {local_file_path}.\n\
+    # --- THIS IS WHERE YOU CAN MAKE YOUR FILE PROCESSING ---
+    print(f'\nCurrent local address of the downloaded file is: {local_file_path}.\n\
         It will now be deleted before downloading the next file.')
-
-
-
+print(f'\nThe iteration over the files (CAN+GPS) is finished.')
 
 
 # ------------------ clear the cache ------------------
 init_cache()
-#init_cache(long=True)
+init_cache(long=True)
 
 # ------------------ close the async loop ------------------
 loop.close()

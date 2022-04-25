@@ -208,7 +208,7 @@ class FileIteratorCanGps:
         """
         try:
             if verbose:
-                print(f'serving and preprocessing file, number {self.index} out of {self.max_index}')
+                print(f'serving and preprocessing file, number {self.index} out of {self.max_index - 1}')
             if self.index < self.max_index:
                 init_cache()
                 self.current_file = self.data.iloc[self.index]['Files']
@@ -228,12 +228,20 @@ class FileIteratorCanGps:
 
                 if verbose:
                     print(f'Download and preprocessing of {self.can_local_address} was successful')
-
-                return self.can_local_address
+                
+                if ignore_gps_file:
+                    return self.can_local_address
+                else:
+                    return {"can": self.can_local_address, "gps": self.gps_local_address}
             else:
                 raise Exception('max_index')
 
         except Exception as e:
             raise Exception(f'Downloading next file failed on {e}')
-
+    
+    def reset(self):
+        '''
+        Resets the index to 0.
+        '''
+        self.index = 0
 

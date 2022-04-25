@@ -5,6 +5,9 @@
 This example file shows how to use the file iterator class. It allows 
 to get files from CyVerse and treat them one by one, handling download,
 caching and referencing all the available runs.
+
+NOTE: Be sure to have configured your cache and your irods environment before 
+testing these functionnalities. You can do so by using the file 'example_configuration.py's
 --------------------------------------------------------------
 '''
 

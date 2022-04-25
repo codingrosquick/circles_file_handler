@@ -8,6 +8,16 @@ The package will be published on Pip once stable and tested.
 
 ## CONFIGURATION
 
+### Install the packages
+
+To install the required packages, simply run in the terminal:
+```
+python3 -m venv venv
+source venv/bin/activate
+pip install requirements.txt
+```
+
+
 ### IRODS environment
 
 To connect to CyVerse, you need your profile to be set.To retrieve this profile, the irods client tries:

@@ -1,11 +1,12 @@
+import json
 from typing import Dict, List
 import pandas as pd
-from circles_file_handler.utils.cache import get_all_files_from_cache_dir
-from circles_file_handler.utils.cyverse_io_irods import IRODSGet
-from utils import init_cache, findall_files
+from utils.cache import get_all_files_from_cache_dir
+from utils.cyverse_io_irods import IRODSGet
+from utils import init_cache, findall_files, perform_cut, find_ts_time_close
 from global_variables import cyverse_path_server_resources_default, local_long_folder, local_temp_folder, cyverse_path_server_resources_user
 
-class FileServerCanGps:
+class FileIteratorCanGps:
     """
     Class handling file download and caching, csv filtering and time cuts
     Works for retrieving files using CAN+GPS CSV data (from CyVerse runs)
@@ -14,13 +15,14 @@ class FileServerCanGps:
 
     data = None
     current_remote_adresses = None
-    current_event = None
+    current_file = None
     can_local_address = None
     gps_local_address = None
     index = None
     max_index = None
     previous_cut_time = None
     next_cut_time = None
+    exploration_used = None
 
 
     # ============================== METHODS ==============================
@@ -31,9 +33,12 @@ class FileServerCanGps:
 
     def __str__(self):
         if self.max_index is None:
-            return f'FileServer configuration is not finished'
+            return f'File Iterator configuration is not finished. Please select an exploration to use.'
         else:
-            return f'file server with {self.max_index} files ready to be served, current index is: {self.index}'
+            return f'File Iterator is set with {self.max_index} files ready to be served.\
+                    \nThe file exploration used is: {self.exploration_used}\
+                    \nCurrent index is: {self.index}\
+                    \nCut times are: before: {self.previous_cut_time}, after: {self.next_cut_time}'
 
 
     # -------------- Getting and setting which exploration to use --------------
@@ -43,6 +48,7 @@ class FileServerCanGps:
         Sets which exploration (available locally) to use
         :param local_exploration_to_use: path to the exploration CSV to use
         '''
+        self.exploration_used = local_exploration_to_use
         self.data = pd.read_csv(local_exploration_to_use)
         self.max_index = len(self.data)
 
@@ -57,11 +63,11 @@ class FileServerCanGps:
         if clear_long_cache:
             init_cache(long=True)
 
-        files = await findall_files(root=cyverse_path_server_resources_default)
+        files = findall_files(root=cyverse_path_server_resources_default)
 
         for file in files:
             await IRODSGet(remote_address=file, cache_address=local_long_folder)
-
+        
    
     async def find_available_user_explorations(self) -> List[str]:
         '''
@@ -98,6 +104,41 @@ class FileServerCanGps:
 
 
     # -------------- Filtering --------------
+
+    # NOTE: this is a bit dirty, will be fixed in the future
+    def get_json_from_name(self, name):
+        try:
+            namejson = json.loads(name.replace("\'", '\"'))
+            return namejson
+        except:
+            return {"can": "", "gps": ""}
+            
+    def filter(self, date: str = None, vin: str = None, ):
+        """
+        filter the rows based on those criteria
+
+        :param vin: list of acceptable vehicle identification numbers
+        :param date: string formatted as YYYY-MM-DD. Keep only the runs from this day
+
+        TODO: better support for the dates filtering:
+        {beg: date, end: date}, with date as strings, formatted as YYYY-MM-DD-HH-MM-SS
+
+        :return: None. Only updates self.data to only keep the desirable instances
+        """
+
+        if date is not None:
+            filter_array_date = [(date in self.get_json_from_name(name)['can']) for name in self.data['Files']]
+            self.data = self.data.loc[filter_array_date]
+        if vin is not None:
+            filter_array_vin = [(vin in self.get_json_from_name(name)['can']) for name in self.data['Files']]
+            self.data = self.data.loc[filter_array_vin]
+
+        self.max_index = len(self.data)
+
+
+    '''
+    TODO: Keep this for the file iterator over events!!!
+
 
     def filter(self, cc_state: List[int] = None, speed: Dict[str, int] = None, vin: List[str] = None, date: Dict[str, str] = None, event_type: List[str] = None):
         """
@@ -151,11 +192,12 @@ class FileServerCanGps:
             'can': can_new_path,
             'gps': gps_new_path,
         }
+    '''
 
 
     # -------------- Retrieving file through next() method --------------
 
-    async def next(self, ignore_gps_file: bool = False):
+    async def next(self, ignore_gps_file: bool = False, verbose: bool = False):
         """
         clears cache & downloads the next couple of files
         :param: ignore_gps_file: set to True to avoid downloading the GPS file
@@ -165,23 +207,29 @@ class FileServerCanGps:
         Exception('max_index')
         """
         try:
-            print(f'serving and preprocessing file, number {self.index} out of {self.max_index}')
+            if verbose:
+                print(f'serving and preprocessing file, number {self.index} out of {self.max_index}')
             if self.index < self.max_index:
-                cache = init_cache(self.local_root_folder)
-                self.current_event = self.data.iloc[self.index]
-                self.current_remote_adresses = ast.literal_eval(self.current_event['remote_addresses'])
+                init_cache()
+                self.current_file = self.data.iloc[self.index]['Files']
+                self.current_remote_adresses = self.get_json_from_name(self.current_file)
 
-                self.can_local_address = await iget(self.current_remote_adresses['can'], cache)
+                self.can_local_address = await IRODSGet(self.current_remote_adresses['can'], local_temp_folder)
                 if ignore_gps_file:
                     self.gps_local_address = None
                 else:
-                    self.gps_local_address = await iget(self.current_remote_adresses['gps'], cache)
+                    self.gps_local_address = await IRODSGet(self.current_remote_adresses['gps'], local_temp_folder)
 
                 self.index += 1
 
-                local_addresses = self.cut_can_file()
-                print(f'Download and preprocessing of {local_addresses} was successful')
-                return local_addresses
+                # TODO:
+                # Keep this for file iterator over events
+                # local_addresses = self.cut_can_file()
+
+                if verbose:
+                    print(f'Download and preprocessing of {self.can_local_address} was successful')
+
+                return self.can_local_address
             else:
                 raise Exception('max_index')
 

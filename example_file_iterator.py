@@ -1,11 +1,116 @@
+'''
+--------------------------------------------------------------
+                   Iterating over the files
+--------------------------------------------------------------
+This example file shows how to use the file iterator class. It allows 
+to get files from CyVerse and treat them one by one, handling download,
+caching and referencing all the available runs.
+--------------------------------------------------------------
+'''
 
-# TODO:
+# ------------------ imports ------------------
+import asyncio
+import os
+from utils import ipwd, ils, icd, init_cache, remove_file_from_cache, create_irods_env, IRODSGet, IRODSPut, getIRODSSession, get_all_files_from_cache_dir, FileIteratorCanGps
+from global_variables import cyverse_path_server_resources, local_temp_folder, cyverse_path_server_resources_test
 
-# - next() method
-#     - choose file exploration to use
-#     - precomputed ones (small analysis, large all csv gps files coupled)
-#     - use filtering, specific selections from those files
-# - Being able to cut the file around the event
-#     - Convert to bagfile
-#     - Have methods around the next that can be set: processing_after_download() (just after the download), processing_before_next() (before the cache is cleared)
-    
+# ------------------ creating the async loop ------------------
+'''
+    -> AN IMPORTANT NOTE ON THE ASYNCHRONOUS BEHAVIOR:
+
+we have to create an async loop and wait for its completion to be able to perform
+an 'await' in the python script. See the link below for more information:
+https://docs.python.org/3/library/asyncio-eventloop.html#running-and-stopping-the-loop
+https://stackabuse.com/python-async-await-tutorial/, section 'Running the Event Loop'
+
+In a server environment, you can just use those Get/Put inside of async functions, using await to wait
+for their completion. You can see an example below
+
+async def some_function():
+    ....
+    await IRODSGet(remote, local)
+    ....
+'''
+loop = asyncio.get_event_loop()
+
+
+# ======================= CREATION OF THE FILE ITERATOR =======================
+'''
+Here, we create the file iterator object
+'''
+
+print('\n------------------------ CREATION OF THE FILE ITERATOR ------------------------\n')
+
+FileIterator = FileIteratorCanGps()
+print(f'\nThe file iterator object has been created: {FileIterator}')
+
+
+# ======================= CONFIGURATION OF THE FILE ITERATOR =======================
+'''
+Here, we configure the file iterator object's rerference data. We set which file exploration
+to use for iterating over the files. A file exploration is just a CSV file containing a list
+of path to access runs on CyVerse.
+
+For most of the cases, using only the default file explorations provided would be sufficient.
+There is one "large" exploration, containing all the CSV files available on CyVerse. There is 
+also a smaller one giving a few files to try the algorithm on.
+
+If you need to add more referenced data to those exploration (different kind or more recent data),
+you can look at the code example ./example_create_file_iteration.py.
+'''
+print('\n------------------------ CONFIGURATION OF THE FILE ITERATOR ------------------------\n')
+
+# Get Default explorations
+#UNCOMMENT ---------
+# loop.run_until_complete(FileIterator.get_default_explorations(clear_long_cache=True))
+print(f'\nDefault explorations have been pulled from CyVerse and are now available locally.')
+
+# Find the locally available explorations
+available_explorations = FileIterator.find_locally_available_explorations()
+print(f'\nThose explorations are: {available_explorations}')
+
+# Set which local exploration to use for iterating over the files
+# We use a large exploration with all the available runs on CyVerse
+# here for the purposes of this demonstration. We will filter those out afterwards
+index_of_large_file_iteration = [idx for idx, filename in enumerate(available_explorations) if 'full_exploration' in filename][0]
+FileIterator.set_exploration_to_use(available_explorations[index_of_large_file_iteration])
+print(f"\nThe file iterator's exploration is set. The file iterator now returns: {FileIterator}")
+
+# Using filters
+print(f"\nWe filter out those runs to only keep the ones having:\n\
+        VIN=JTMB6RFV5MD010181,\n\
+        date=2021-06-16")
+FileIterator.filter(date='2021-06-16', vin='JTMB6RFV5MD010181')
+print(f"\nWe have filtered out the referenced files in the file iterator.\nIt now returns: {FileIterator}")
+
+
+# ======================= ITERATING OVER THE FILES =======================
+'''
+Now that everything is set up, we can finally present the core of what this package allows.
+By calling the next() method of the file iterator, it:
+- clears the temp cache
+- downloads the next file in the list of available files from the file exploration
+- returns the local path towards this downloaded file
+
+For the demonstration of this file, we will simply print out the filename and not process them.
+
+NOTE: here, we can use the file iterator on CAN/GPS file couples. For the purposes of this
+explanation, we set the flag ignore_gps_file=False when downloading a new file. 
+'''
+print('\n------------------------ ITERATING OVER THE FILES ------------------------\n')
+
+for _ in range(FileIterator.max_index):
+    local_file_path = loop.run_until_complete(FileIterator.next(ignore_gps_file=False, verbose=True))
+    print(f'Current local address of the downloaded file is: {local_file_path}.\n\
+        It will now be deleted before downloading the next file.')
+
+
+
+
+
+# ------------------ clear the cache ------------------
+init_cache()
+#init_cache(long=True)
+
+# ------------------ close the async loop ------------------
+loop.close()

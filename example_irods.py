@@ -19,12 +19,27 @@ Resources for more information:
 # ------------------ imports ------------------
 import asyncio
 from datetime import datetime
-from fileinput import filename
 import os
-from utils import ipwd, ils, icd, init_cache, remove_file_from_cache, create_irods_env, IRODSGet, IRODSPut, getIRODSSession, get_all_files_from_cache_dir
+from utils import ipwd, ils, icd, init_cache, remove_file_from_cache, IRODSGet, IRODSPut, getIRODSSession, get_all_files_from_cache_dir
 from global_variables import cyverse_path_server_resources, local_temp_folder, cyverse_path_server_resources_test
 
 # ------------------ creating the async loop ------------------
+'''
+    -> AN IMPORTANT NOTE ON THE ASYNCHRONOUS BEHAVIOR:
+
+we have to create an async loop and wait for its completion to be able to perform
+an 'await' in the python script. See the link below for more information:
+https://docs.python.org/3/library/asyncio-eventloop.html#running-and-stopping-the-loop
+https://stackabuse.com/python-async-await-tutorial/, section 'Running the Event Loop'
+
+In a server environment, you can just use those Get/Put inside of async functions, using await to wait
+for their completion. You can see an example below
+
+async def some_function():
+    ....
+    await IRODSGet(remote, local)
+    ....
+'''
 loop = asyncio.get_event_loop()
 
 
@@ -50,23 +65,6 @@ print('The folder structure at our current location is:\n', folder_structure)
 # ======================= I/O COMMANDS =======================
 '''
 This part shows the IRODSGet and IRODSPut commands in action
-
-
-    AN IMPORTANT NOTE ON THE ASYNCHRONOUS BEHAVIOR:
-
-we have to create an async loop and wait for its completion to be able to perform
-an 'await' in the python script. See the link below for more information:
-https://docs.python.org/3/library/asyncio-eventloop.html#running-and-stopping-the-loop
-https://stackabuse.com/python-async-await-tutorial/, section 'Running the Event Loop'
-
-In a server environment, you can just use those Get/Put inside of async functions, using await to wait
-for their completion. You can see an example below
-
-async def some_function():
-    ....
-    await IRODSGet(remote, local)
-    ....
-
 '''
 
 print('\n------------------------I/O COMMANDS------------------------\n')

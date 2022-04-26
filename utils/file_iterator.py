@@ -23,6 +23,8 @@ class FileIteratorCanGps:
     previous_cut_time = None
     next_cut_time = None
     exploration_used = None
+    before_next = lambda x: None
+    after_next = lambda x: None
 
 
     # ============================== METHODS ==============================
@@ -194,6 +196,14 @@ class FileIteratorCanGps:
         }
     '''
 
+    # -------------- Next hook methods --------------
+
+    def set_hook_before_next(self, before_next):
+        self.before_next = before_next
+
+    def set_hook_after_next(self, after_next):
+        self.after_next = after_next
+
 
     # -------------- Retrieving file through next() method --------------
 
@@ -210,7 +220,10 @@ class FileIteratorCanGps:
             if verbose:
                 print(f'serving and preprocessing file, number {self.index} out of {self.max_index - 1}')
             if self.index < self.max_index:
+                self.before_next(self)
+                
                 init_cache()
+
                 self.current_file = self.data.iloc[self.index]['Files']
                 self.current_remote_adresses = self.get_json_from_name(self.current_file)
 
@@ -229,6 +242,8 @@ class FileIteratorCanGps:
                 if verbose:
                     print(f'Download and preprocessing of {self.can_local_address} was successful')
                 
+                self.after_next(self)
+
                 if ignore_gps_file:
                     return self.can_local_address
                 else:

@@ -60,6 +60,11 @@ also a smaller one giving a few files to try the algorithm on.
 
 If you need to add more referenced data to those exploration (different kind or more recent data),
 you can look at the code example ./example_create_file_iteration.py.
+
+Finally, this file shows how to set the before and after next functions. Those hooks are called
+respectively before and after calling the next() method. In these methods, you can access the
+functions and attributes of the class via self.attr_name or self.method_name.
+Be sure to define the functions you set as function_name(self): ...
 '''
 print('\n------------------------ CONFIGURATION OF THE FILE ITERATOR ------------------------\n')
 
@@ -84,6 +89,16 @@ print(f"\nWe filter out those runs to only keep the ones having:\n\
         date=2021-06-16")
 FileIterator.filter(date='2021-06-16', vin='JTMB6RFV5MD010181')
 print(f"\nWe have filtered out the referenced files in the file iterator.\nIt now returns: {FileIterator}")
+
+# Setting hooks
+def before_func(self):
+    print(f'This print comes from inside of before next hook. It shows that the index is: {self.index}')
+
+def after_func(self):
+    print(f'This print comes from inside of after next hook. It shows that the index is: {self.index}')
+
+FileIterator.set_hook_before_next(before_func)
+FileIterator.set_hook_after_next(after_func)
 
 
 # ======================= ITERATING OVER THE FILES =======================

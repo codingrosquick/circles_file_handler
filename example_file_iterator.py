@@ -13,9 +13,7 @@ testing these functionnalities. You can do so by using the file 'example_configu
 
 # ------------------ imports ------------------
 import asyncio
-import os
-from utils import ipwd, ils, icd, init_cache, remove_file_from_cache, create_irods_env, IRODSGet, IRODSPut, getIRODSSession, get_all_files_from_cache_dir, FileIteratorCanGps
-from global_variables import cyverse_path_server_resources, local_temp_folder, cyverse_path_server_resources_test
+from utils import init_cache, FileIteratorCanGps
 
 # ------------------ creating the async loop ------------------
 '''

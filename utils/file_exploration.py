@@ -4,6 +4,7 @@ from typing import List
 from utils.cyverse_files import findall_files
 from utils.cyverse_io_irods import IRODSPut
 import pandas as pd
+from global_variables import cyverse_path_server_resources_user, local_long_folder
 
 
 def read_metadata_from_exploration_name(filename: str):
@@ -51,12 +52,14 @@ def coupled_files_file_namer(name: str, root: str):
     return f'file_exploration&{name_mod}&created_on={str(datetime.now()).replace(" ", "_")}&root={root_mod}.csv'
 
 
-async def create_fileshare_exploration(root: str, exploration_name: str, remote_exploration_folder: str, local_upload_folder_address: str, verbose: bool = False):
+async def create_fileshare_exploration_can_gps(root: str, exploration_name: str, verbose: bool = False):
     '''
+    Creates a new fileshare exploration for CAN / GPS coulped files.
+    The exploration locally stored in the folder given by the global variable local_long_folder.
+    It is also uploaded to CyVerse in the user-created explorations folder, '/iplant/home/noecarras/resources_file_iterator/user/'.
+
     :param root: root of the exploration to consider (on CyVerse)
     :param exploration_name: name to give to the exploration
-    :param remote_exploration_folder: remote address of the folder holding the files for explorations
-    :param local_upload_folder_address: local folder address for holding the exploration to upload
     :param verbose: set to True to have more extensive log
     :return: the address of the newly created file on CyVerse
     '''
@@ -72,7 +75,7 @@ async def create_fileshare_exploration(root: str, exploration_name: str, remote_
 
     # save the csv file
     output_filename = coupled_files_file_namer(exploration_name, root)
-    local_file_path = os.path.join(local_upload_folder_address, output_filename)
+    local_file_path = os.path.join(local_long_folder, output_filename)
     if verbose:
         print(local_file_path)
 
@@ -84,7 +87,7 @@ async def create_fileshare_exploration(root: str, exploration_name: str, remote_
     # uploads to CyVerse, to remote_exploration_address
     # & init the local cache after upload
     remote_name = await IRODSPut(
-        remote_address=os.path.join(remote_exploration_folder, output_filename),
+        remote_address=os.path.join(cyverse_path_server_resources_user, output_filename),
         local_address=local_file_path,
         clean_file_from_cache=True,
         verbose=verbose

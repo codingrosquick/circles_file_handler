@@ -45,7 +45,7 @@ class FileIteratorCanGps:
 
     # -------------- Getting and setting which exploration to use --------------
 
-    def set_exploration_to_use(self, local_exploration_to_use: str):
+    def set_exploration_to_use(self, local_exploration_to_use: str) -> None:
         '''
         Sets which exploration (available locally) to use
         :param local_exploration_to_use: path to the exploration CSV to use
@@ -71,14 +71,14 @@ class FileIteratorCanGps:
             await IRODSGet(remote_address=file, cache_address=local_long_folder)
         
    
-    async def find_available_user_explorations(self) -> List[str]:
+    def find_available_user_explorations(self) -> List[str]:
         '''
         Find the path to all the user explorations.
         Useful to call the method get_specific_user_exploration() and use a specific user defined exploration path.
 
         :return: List of remote path (on CyVerse) of the available user explorations
         '''
-        files = await findall_files(self, root=cyverse_path_server_resources_user)
+        files = findall_files(self, root=cyverse_path_server_resources_user)
         return files
 
 
@@ -92,17 +92,18 @@ class FileIteratorCanGps:
         return files
 
 
-    async def get_specific_user_exploration(self, remote_path: str, clear_long_cache: bool = False) -> None:
+    async def get_specific_user_exploration(self, remote_path: str, clear_long_cache: bool = False) -> str:
         '''
         Gets from CyVerse the default explorations of CSV CAN+GPS path couples
         :param remote_path: path to CyVerse user exploration
         :param clear_long_cache: Set to true to clear the cache before downloading those default explorations
-        :return: void
+        :return: Local path where the exploration has been downloaded
         '''
         if clear_long_cache:
             init_cache(long=True)
 
-        await IRODSGet(remote_address=remote_path, cache_address=local_long_folder)
+        local_path_exploration = await IRODSGet(remote_address=remote_path, cache_address=local_long_folder)
+        return local_path_exploration
 
 
     # -------------- Filtering --------------

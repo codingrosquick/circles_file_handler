@@ -23,8 +23,8 @@ class FileIteratorCanGps:
     previous_cut_time = None
     next_cut_time = None
     exploration_used = None
-    before_next = lambda x: None
-    after_next = lambda x: None
+    before_next = None
+    after_next = None
 
 
     # ============================== METHODS ==============================
@@ -78,7 +78,7 @@ class FileIteratorCanGps:
 
         :return: List of remote path (on CyVerse) of the available user explorations
         '''
-        files = findall_files(self, root=cyverse_path_server_resources_user)
+        files = findall_files(root=cyverse_path_server_resources_user)
         return files
 
 
@@ -221,7 +221,8 @@ class FileIteratorCanGps:
             if verbose:
                 print(f'serving and preprocessing file, number {self.index} out of {self.max_index - 1}')
             if self.index < self.max_index:
-                self.before_next(self)
+                if self.before_next is not None:
+                    self.before_next(self)
                 
                 init_cache()
 
@@ -243,7 +244,8 @@ class FileIteratorCanGps:
                 if verbose:
                     print(f'Download and preprocessing of {self.can_local_address} was successful')
                 
-                self.after_next(self)
+                if self.after_next is not None:
+                    self.after_next(self)
 
                 if ignore_gps_file:
                     return self.can_local_address

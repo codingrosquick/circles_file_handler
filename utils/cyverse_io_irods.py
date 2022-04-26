@@ -113,7 +113,7 @@ async def IRODSPut(remote_address: str, local_address: str, session = None, clea
         session.data_objects.put(local_address, remote_address)
 
         if clean_file_from_cache:
-            if ('/temp_cache/' in local_address):
+            if ('/temp_cache/' in local_address) or ('/long_cache/' in local_address):
                 remove_file_from_cache(local_address)
             else:
                 raise Exception(f'Cannot remove a file not located inside of the temporary cache.\nThe desired file to remove is located at: {local_address}')

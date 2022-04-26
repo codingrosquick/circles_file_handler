@@ -52,10 +52,10 @@ It mostly relies on calling the async function "create_fileshare_exploration".
 '''
 print('\n------------------------ MAKING A NEW FILE SHARE EXPLORATION ------------------------\n')
 
-root = 'https://de.cyverse.org/data/ds/iplant/home/sprinkjm/publishable-circles/2T3Y1RFV8KC014025/libpanda/2021_01_16/'
+root = '/iplant/home/sprinkjm/publishable-circles/2T3Y1RFV8KC014025/libpanda/2021_01_16/'
 exploration_name = 'DemoUserTest'
 print(f'\nStarting file share exploration at root {root}')
-remote_file_name = loop.run_until_complete(create_fileshare_exploration_can_gps(root, exploration_name, verbose=False))
+remote_file_name = loop.run_until_complete(create_fileshare_exploration_can_gps(root, exploration_name, verbose=True))
 print(f'It has been uploaded to {remote_file_name}')
 
 
@@ -80,7 +80,7 @@ print(f'Available explorations on CyVerse are: {available_explorations}')
 
 # Download this explorations
 # NOTE: we use this specific file but we could have used any other one
-exploration_to_download = 'https://de.cyverse.org/data/ds/iplant/home/noecarras/resources_file_iterator/user/file_exploration&example_small_exploration_vandertest&create_on=2021-11-29_19:28:05.073947&root=_iplant_home_sprinkjm_publishable-circles_2T3W1RFVXKW033343_libpanda_2021_08_02.csv'
+exploration_to_download = '/iplant/home/noecarras/resources_file_iterator/user/file_exploration&example_small_exploration_vandertest&create_on=2021-11-29_19:28:05.073947&root=_iplant_home_sprinkjm_publishable-circles_2T3W1RFVXKW033343_libpanda_2021_08_02.csv'
 print(f'\nWe want to download the user exploration {exploration_to_download}')
 local_path_exploration = loop.run_until_complete(FileIterator.get_specific_user_exploration(exploration_to_download, clear_long_cache=True))
 print(f'User exploration has been download locally and is available at: {local_path_exploration}')

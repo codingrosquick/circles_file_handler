@@ -38,7 +38,7 @@ def remove_file_from_cache(file_address: str) -> str:
     :return: file_address once the file has been deleted.
     '''
     try:
-        if (file_address) and ((local_temp_folder in file_address) or (local_long_folder in file_address)):
+        if (file_address) and (('temp_cache' in file_address) or ('long_cache' in file_address)):
             subprocess.run(['rm', file_address],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,

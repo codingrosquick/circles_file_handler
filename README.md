@@ -3,10 +3,20 @@
 ### Timeline
 This repo gives utility classes for handling file interactions with CIRCLES CyVerse.
 
-The package will be published on Pip once stable and tested.
+It allows:
+- Communication with CyVerse's fileshare (ls, cd, pwd)
+- I/O Commands through IRODS
+- Iterating over files from CyVerse
+- Cache handling
 
 
-## CONFIGURATION
+## CONFIGURATION [if pulled repostory from PyPI]
+
+To install everything properly, run the following command:
+
+
+
+## CONFIGURATION [if pulled repostory from GitHub]
 
 ### Install the packages
 

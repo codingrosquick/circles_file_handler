@@ -13,7 +13,9 @@ It allows:
 ## CONFIGURATION [if pulled repostory from PyPI]
 
 To install everything properly, run the following command:
-
+```
+python3 -m circles_file_iterator
+```
 
 
 ## CONFIGURATION [if pulled repostory from GitHub]

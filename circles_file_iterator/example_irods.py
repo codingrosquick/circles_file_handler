@@ -20,10 +20,10 @@ Resources for more information:
 import asyncio
 from datetime import datetime
 import os
-from utils.cache import init_cache, remove_file_from_cache, get_all_files_from_cache_dir
-from utils.cyverse_io_irods import IRODSGet, IRODSPut, getIRODSSession
-from utils.cyverse_files import ipwd, ils, icd
-from global_variables import cyverse_path_server_resources, local_temp_folder, cyverse_path_server_resources_test
+from circles_file_iterator.utils.cache import init_cache, remove_file_from_cache, get_all_files_from_cache_dir
+from circles_file_iterator.utils.cyverse_io_irods import IRODSGet, IRODSPut, getIRODSSession
+from circles_file_iterator.utils.cyverse_files import ipwd, ils, icd
+from circles_file_iterator.global_variables.global_variables import cyverse_path_server_resources, local_temp_folder, cyverse_path_server_resources_test
 
 # ------------------ creating the async loop ------------------
 '''

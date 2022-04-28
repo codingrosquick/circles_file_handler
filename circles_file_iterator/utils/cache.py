@@ -1,7 +1,7 @@
 import os
 import subprocess
 from typing import List
-from global_variables import local_temp_folder, local_long_folder
+from ..global_variables.global_variables import local_temp_folder, local_long_folder
 
 def init_cache(long: bool = False) -> str:
     '''

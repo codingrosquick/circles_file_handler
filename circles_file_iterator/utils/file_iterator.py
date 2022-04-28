@@ -6,7 +6,8 @@ from .cyverse_io_irods import IRODSGet
 from .cache import init_cache
 from .cyverse_files import findall_files
 from .csv_cutting import perform_cut, find_ts_time_close
-from global_variables import cyverse_path_server_resources_default, local_long_folder, local_temp_folder, cyverse_path_server_resources_user
+from ..global_variables.global_variables import cyverse_path_server_resources_default, local_long_folder, local_temp_folder, cyverse_path_server_resources_user
+
 
 class FileIteratorCanGps:
     """

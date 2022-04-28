@@ -1,6 +1,6 @@
 import sys
 import os
-from utils.cyverse_io_irods import create_irods_env
+from .utils.cyverse_io_irods import create_irods_env
 
 
 def main():
@@ -15,8 +15,8 @@ def main():
     user_folder_root = os.path.abspath(in_user_folder_root.strip())
     
     try:
-        global_vars = open(os.path.abspath('./global_variables/global_variables.py'), 'r+').readlines()
-        out_filename = open(os.path.abspath('./global_variables/global_variables.py'), 'w')
+        global_vars = open(os.path.abspath('./venv/lib/python3.7/site-packages/circles_file_iterator/global_variables/global_variables.py'), 'r+').readlines()
+        out_filename = open(os.path.abspath('./venv/lib/python3.7/site-packages/circles_file_iterator/global_variables/global_variables.py'), 'w')
         for l in global_vars:
             if l[:15] == 'local_folder = ':
                 out_filename.write(l[:15] + "'" + local_folder_path + "'" + "\n")

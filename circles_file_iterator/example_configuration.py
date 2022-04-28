@@ -23,9 +23,9 @@ Resources for more information:
 # ------------------ imports ------------------
 
 import os
-from global_variables import local_folder
-from utils.cache import init_cache
-from utils.cyverse_io_irods import create_irods_env
+from circles_file_iterator.global_variables.global_variables import local_folder
+from circles_file_iterator.utils.cache import init_cache
+from circles_file_iterator.utils.cyverse_io_irods import create_irods_env
 
 
 # ------------------ VARIABLES FOR THE TEST ------------------

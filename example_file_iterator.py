@@ -13,7 +13,8 @@ testing these functionnalities. You can do so by using the file 'example_configu
 
 # ------------------ imports ------------------
 import asyncio
-from utils import init_cache, FileIteratorCanGps
+from utils.cache import init_cache
+from utils.file_iterator import FileIteratorCanGps
 
 # ------------------ creating the async loop ------------------
 '''

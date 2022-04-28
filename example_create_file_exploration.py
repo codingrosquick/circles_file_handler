@@ -23,7 +23,9 @@ testing these functionnalities. You can do so by using the file 'example_configu
 
 # ------------------ imports ------------------
 import asyncio
-from utils import init_cache, FileIteratorCanGps, create_fileshare_exploration_can_gps
+from utils.cache import init_cache
+from utils.file_iterator import FileIteratorCanGps
+from utils.file_exploration import create_fileshare_exploration_can_gps
 
 # ------------------ creating the async loop ------------------
 '''

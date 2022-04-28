@@ -24,7 +24,8 @@ Resources for more information:
 
 import os
 from global_variables import local_folder
-from utils import init_cache, create_irods_env
+from utils.cache import init_cache
+from utils.cyverse_io_irods import create_irods_env
 
 
 # ------------------ VARIABLES FOR THE TEST ------------------

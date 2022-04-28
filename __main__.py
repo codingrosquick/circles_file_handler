@@ -1,6 +1,6 @@
 import sys
 import os
-from utils import create_irods_env
+from utils.cyverse_io_irods import create_irods_env
 
 def main():
     sys.stdout.write(f'Configuration of the File Iterator package.\n')

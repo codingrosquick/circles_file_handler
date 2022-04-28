@@ -1,10 +1,10 @@
 from datetime import datetime
 import os
 from typing import List
-from utils.cyverse_files import findall_files
-from utils.cyverse_io_irods import IRODSPut
+from .cyverse_files import findall_files
+from .cyverse_io_irods import IRODSPut
 import pandas as pd
-from global_variables import cyverse_path_server_resources_user, local_long_folder
+from ..global_variables import cyverse_path_server_resources_user, local_long_folder
 
 
 def read_metadata_from_exploration_name(filename: str):

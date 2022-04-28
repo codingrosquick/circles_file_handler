@@ -2,7 +2,7 @@ import subprocess
 import os
 import ssl
 from irods.session import iRODSSession
-from utils import remove_file_from_cache
+from .cache import remove_file_from_cache
 import json
 
 

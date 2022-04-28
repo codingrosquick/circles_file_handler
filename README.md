@@ -55,6 +55,19 @@ Check out the file ```code_examples/example_irods``` for an example of such conf
 
 
 
+# Rebuilding the package for PyPI
+
+To rebuild the package for publishing, do the following steps:
+1. Go to ```setup.py```, increase the version number.
+2. Do the same in ```circles_file_iterator/__init__.py```
+3. Run the following command to build the executable:
+```
+python3 -m build
+```
+4. Run the following command to push those changes to PyPI
+```
+twine upload --repository pypi dist/* --verbose
+```
 
 
 

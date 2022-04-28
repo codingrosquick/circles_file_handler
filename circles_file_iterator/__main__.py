@@ -2,6 +2,7 @@ import sys
 import os
 from utils.cyverse_io_irods import create_irods_env
 
+
 def main():
     sys.stdout.write(f'Configuration of the File Iterator package.\n')
     #    Please Write down your CyVerse username: ')
@@ -33,6 +34,7 @@ def main():
     sys.stdout.write(f'IRODS configuration has been written to {irods_file_env}.\n\
         Local cache file has been set to be in {local_folder_path}\n\
         Your CyVerse usename has been read with success.')
+
 
 if __name__ == "__main__":
     main()

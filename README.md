@@ -8,6 +8,9 @@ It allows:
 - Iterating over files from CyVerse
 - Cache handling
 
+
+## External links
+
 To see examples of usage of this package, you can go to: https://github.com/codingrosquick/file_iterator_code_examples
 
 To see the published package on PyPI, go to: https://pypi.org/project/circles-file-iterator/
@@ -22,9 +25,32 @@ python3 -m circles_file_iterator
 ```
 
 
+## Rebuilding the package for PyPI
+
+To rebuild the package for publishing, do the following steps:
+1. Go to ```setup.py```, increase the version number.
+2. Do the same in ```circles_file_iterator/__init__.py```
+3. Run the following command to build the executable:
+```
+python3 -m build
+```
+4. Run the following command to push those changes to PyPI
+```
+twine upload --repository pypi dist/* --verbose
+```
+
+
+
+
+
+
+
 ## CONFIGURATION [if pulled repostory from GitHub]
 
-QUICKNOTE: Some of this configuration may be outdated or not stable depending on your os.
+*QUICKNOTE:* Some of this configuration may be outdated or not stable depending on your os.
+
+You don't need to bother with those configurations if you pull this as a package from PyPI.
+
 
 ### Install the packages
 
@@ -41,9 +67,6 @@ To connect to CyVerse, you need your profile to be set.To retrieve this profile,
     1. Using the configuration file located in ~/.irods/irods_environment.json
     2. If not located, the file given by the environment variable IRODS_ENVIRONMENT_FILE
 
-To help in this configuration, a method, create_irods_env() can be used.
-Check out the file ```example_irods``` for an example of such configuration.
-
 WARNING: If your access to CyVerse through IRODS already works locally, there would be no need to do this step.
 
 Once this has been done one time, there will be no need for using this method on local machines.
@@ -57,22 +80,6 @@ To configure the cache, open the file ```/global_variables/global_variables.py``
 
 Then set the variable ```local_path``` to the root of the folder you will be working into.
 Check out the file ```example_irods``` for an example of such configuration.
-
-
-
-# Rebuilding the package for PyPI
-
-To rebuild the package for publishing, do the following steps:
-1. Go to ```setup.py```, increase the version number.
-2. Do the same in ```circles_file_iterator/__init__.py```
-3. Run the following command to build the executable:
-```
-python3 -m build
-```
-4. Run the following command to push those changes to PyPI
-```
-twine upload --repository pypi dist/* --verbose
-```
 
 
 

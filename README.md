@@ -8,6 +8,10 @@ It allows:
 - Iterating over files from CyVerse
 - Cache handling
 
+*(version 1.1.1)*
+- perform event analysis on a file
+- perform event analysis on all the files of a file exploration
+
 
 ## External links
 

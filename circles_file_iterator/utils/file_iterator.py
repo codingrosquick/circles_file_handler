@@ -145,7 +145,6 @@ class FileIteratorCanGps:
     '''
     TODO: Keep this for the file iterator over events!!!
 
-
     def filter(self, cc_state: List[int] = None, speed: Dict[str, int] = None, vin: List[str] = None, date: Dict[str, str] = None, event_type: List[str] = None):
         """
         filter the rows based on those criteria

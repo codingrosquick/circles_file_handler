@@ -13,7 +13,7 @@ REQS = [req.split('==')[0] for req in open((HERE / "requirements.txt"), 'r').rea
 # This call to setup() does all the work
 setup(
     name="circles-file-iterator",
-    version="1.0.4",
+    version="1.1.0",
     description="Allows to iterate over CyVerse CIRCLES files",
     long_description=README,
     long_description_content_type="text/markdown",

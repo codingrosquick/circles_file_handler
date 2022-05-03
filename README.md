@@ -3,10 +3,18 @@
 This repo gives utility classes for handling file interactions with CIRCLES CyVerse.
 
 It allows:
+
+*(version 1.0.4)*
 - Communication with CyVerse's fileshare (ls, cd, pwd)
 - I/O Commands through IRODS
 - Iterating over files from CyVerse
 - Cache handling
+- cut CSV files
+
+*(version 1.1.0)*
+- perform event analysis on a file
+- perform event analysis on all the files of a file exploration
+- cut bagfiles
 
 
 ## External links
@@ -38,11 +46,6 @@ python3 -m build
 ```
 twine upload --repository pypi dist/* --verbose
 ```
-
-
-
-
-
 
 
 ## CONFIGURATION [if pulled repostory from GitHub]

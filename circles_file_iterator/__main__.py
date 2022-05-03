@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import os
 from .utils.cyverse_io_irods import create_irods_env
@@ -34,6 +35,17 @@ def main():
     sys.stdout.write(f'IRODS configuration has been written to {irods_file_env}.\n\
         Local cache file has been set to be in {local_folder_path}\n\
         Your CyVerse usename has been read with success.')
+
+    # Install Rosbag and dependancies (they aren't available on PyPI so we need to download all of them manually...)
+    try:
+        install_rosbag = os.path.abspath('./venv/lib/python3.7/site-packages/circles_file_iterator/utils/install_rospy.sh')
+        subprocess.run(['bash', install_rosbag], 
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        universal_newlines=True)
+        sys.stdout.write(f'Rosbag and its dependencies have been installed')
+    except Exception as e:
+        raise Exception(f'Installation of Rosbag and dependancies failed on: {e}')
 
 
 if __name__ == "__main__":

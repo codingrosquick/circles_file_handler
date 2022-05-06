@@ -9,6 +9,9 @@ import json
 
 
 def create_irods_env(username: str, local_user_folder: str) -> str:
+    '''
+    Configuration function to create the irods environment file
+    '''
     env_path = os.path.join(local_user_folder, '.irods', 'irods_environment.json')
     folder_path = os.path.join(local_user_folder, '.irods')
 

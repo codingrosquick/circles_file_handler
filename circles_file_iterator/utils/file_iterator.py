@@ -5,7 +5,6 @@ from .cache import get_all_files_from_cache_dir
 from .cyverse_io_irods import IRODSGet
 from .cache import init_cache
 from .cyverse_files import findall_files
-from .csv_cutting import perform_cut, find_ts_time_close
 from ..global_variables.global_variables import cyverse_path_server_resources_default, local_long_folder, local_temp_folder, cyverse_path_server_resources_user
 
 
@@ -201,9 +200,16 @@ class FileIteratorCanGps:
 
 
     '''
-    NOTE: This legacy code can be used to create file iterator over the events, I.E using an event analysis instead of the file iterator to get the CAN files from
-    cyverse corresponding to different events, and cut them around the time of the different events.
-
+    # ---------------------------------------------------------------------------------------------------------
+    #
+    # NOTE: This legacy code can be used to create file iterator over the events, I.E using an event analysis
+    # instead of the file iterator to get the CAN files from cyverse corresponding to different events, and cut
+    # them around the time of the different events.
+    #
+    # You also need to add this import at the top to have access to the functions performing CSV cutting
+    #     from .csv_cutting import perform_cut, find_ts_time_close
+    #
+    # ---------------------------------------------------------------------------------------------------------
 
     def filter(self, cc_state: List[int] = None, speed: Dict[str, int] = None, vin: List[str] = None, date: Dict[str, str] = None, event_type: List[str] = None):
         """

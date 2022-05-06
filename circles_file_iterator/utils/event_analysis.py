@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 from strym import strymread
 from .file_iterator import FileIteratorCanGps
 from .cache import init_cache
-from .cyverse_io_irods import IRODSPut
 from ..global_variables.global_variables import local_long_folder
 
 

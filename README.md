@@ -28,6 +28,7 @@ To see the published package on PyPI, go to: https://pypi.org/project/circles-fi
 To install everything properly, run the following command:
 ```
 python3 -m pip install circles-file-iterator
+python3 -m pip install strym==0.4.17
 python3 -m circles_file_iterator
 ```
 

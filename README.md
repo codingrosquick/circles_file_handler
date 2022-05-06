@@ -3,6 +3,7 @@
 This repo gives utility classes for handling file interactions with CIRCLES CyVerse.
 
 It allows:
+*(version 1.0.4)*
 - Communication with CyVerse's fileshare (ls, cd, pwd)
 - I/O Commands through IRODS
 - Iterating over files from CyVerse

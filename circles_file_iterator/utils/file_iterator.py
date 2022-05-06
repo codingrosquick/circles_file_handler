@@ -1,5 +1,5 @@
-import json
-from typing import Dict, List
+from ast import literal_eval
+from typing import List
 import pandas as pd
 from .cache import get_all_files_from_cache_dir
 from .cyverse_io_irods import IRODSGet
@@ -72,8 +72,8 @@ class FileIteratorCanGps:
 
         for file in files:
             await IRODSGet(remote_address=file, cache_address=local_long_folder)
-        
-   
+
+
     def find_available_user_explorations(self) -> List[str]:
         '''
         Find the path to all the user explorations.
@@ -89,7 +89,7 @@ class FileIteratorCanGps:
         '''
         Gives the path to all the local explorations, already downloaded locally.
         Use this to select the right exploration to use for your file-to-file analysis.
-        
+
         '''
         files = get_all_files_from_cache_dir(long=True)
         return files
@@ -106,19 +106,16 @@ class FileIteratorCanGps:
             init_cache(long=True)
 
         local_path_exploration = await IRODSGet(remote_address=remote_path, cache_address=local_long_folder)
+
+        self.exploration_used = local_path_exploration
+        self.data = pd.read_csv(local_path_exploration)
+        self.max_index = len(self.data)
+
         return local_path_exploration
 
 
     # -------------- Filtering --------------
 
-    # NOTE: this is a bit dirty, will be fixed in the future
-    def get_json_from_name(self, name):
-        try:
-            namejson = json.loads(name.replace("\'", '\"'))
-            return namejson
-        except:
-            return {"can": "", "gps": ""}
-            
     def filter(self, date: str = None, vin: str = None, ):
         """
         filter the rows based on those criteria
@@ -126,24 +123,86 @@ class FileIteratorCanGps:
         :param vin: list of acceptable vehicle identification numbers
         :param date: string formatted as YYYY-MM-DD. Keep only the runs from this day
 
-        TODO: better support for the dates filtering:
-        {beg: date, end: date}, with date as strings, formatted as YYYY-MM-DD-HH-MM-SS
-
         :return: None. Only updates self.data to only keep the desirable instances
         """
 
         if date is not None:
-            filter_array_date = [(date in self.get_json_from_name(name)['can']) for name in self.data['Files']]
+            filter_array_date = [(date in literal_eval(name)['can']) for name in self.data['Files']]
             self.data = self.data.loc[filter_array_date]
         if vin is not None:
-            filter_array_vin = [(vin in self.get_json_from_name(name)['can']) for name in self.data['Files']]
+            filter_array_vin = [(vin in literal_eval(name)['can']) for name in self.data['Files']]
             self.data = self.data.loc[filter_array_vin]
 
         self.max_index = len(self.data)
 
 
+    # -------------- Next hook methods --------------
+
+    def set_hook_before_next(self, before_next):
+        self.before_next = before_next
+
+    def set_hook_after_next(self, after_next):
+        self.after_next = after_next
+
+
+    # -------------- Retrieving file through next() method --------------
+
+    async def next(self, ignore_gps_file: bool = True, verbose: bool = False):
+        """
+        clears cache & downloads the next couple of files
+        :param: ignore_gps_file: set to True to avoid downloading the GPS file
+        :return: - object with paths to the downloaded CAN and GPS file
+                 - if the maximum index is reached, returns an exception as:
+                    Exception('max_index')
+        """
+        try:
+            if verbose:
+                print(f'serving and preprocessing file, number {self.index} out of {self.max_index - 1}')
+            if self.index < self.max_index:
+                if self.before_next is not None:
+                    self.before_next(self)
+
+                init_cache()
+
+                self.current_file = self.data.iloc[self.index]['Files']
+                self.current_remote_adresses = literal_eval(self.current_file)['can']
+
+                self.can_local_address = await IRODSGet(self.current_remote_adresses, local_temp_folder)
+
+                if ignore_gps_file:
+                    self.gps_local_address = None
+                else:
+                    self.gps_local_address = await IRODSGet(self.current_remote_adresses, local_temp_folder)
+
+                self.index += 1
+
+                if verbose:
+                    print(f'Download and preprocessing of {self.can_local_address} was successful')
+
+                if self.after_next is not None:
+                    self.after_next(self)
+
+                print('inside', self.can_local_address, self.current_remote_adresses)
+                if ignore_gps_file:
+                    return self.can_local_address, self.current_remote_adresses
+                else:
+                    return {"can": self.can_local_address, "gps": self.gps_local_address}
+            else:
+                raise Exception('max_index')
+
+        except Exception as e:
+            raise Exception(f'Downloading next file failed on {e}')
+
+    def reset(self):
+        '''
+        Resets the index to 0.
+        '''
+        self.index = 0
+
+
     '''
-    TODO: Keep this for the file iterator over events!!!
+    NOTE: This legacy code can be used to create file iterator over the events, I.E using an event analysis instead of the file iterator to get the CAN files from
+    cyverse corresponding to different events, and cut them around the time of the different events.
 
 
     def filter(self, cc_state: List[int] = None, speed: Dict[str, int] = None, vin: List[str] = None, date: Dict[str, str] = None, event_type: List[str] = None):
@@ -199,70 +258,4 @@ class FileIteratorCanGps:
             'gps': gps_new_path,
         }
     '''
-
-    # -------------- Next hook methods --------------
-
-    def set_hook_before_next(self, before_next):
-        self.before_next = before_next
-
-    def set_hook_after_next(self, after_next):
-        self.after_next = after_next
-
-
-    # -------------- Retrieving file through next() method --------------
-
-    async def next(self, ignore_gps_file: bool = False, verbose: bool = False):
-        """
-        clears cache & downloads the next couple of files
-        :param: ignore_gps_file: set to True to avoid downloading the GPS file
-        :return: - object with paths to the downloaded CAN and GPS file
-        {'can': str, 'gps': str, 'remote_addresses': {'can': str, 'gps': str}}
-                 - if the maximum index is reached, returns an exception as:
-        Exception('max_index')
-        """
-        try:
-            if verbose:
-                print(f'serving and preprocessing file, number {self.index} out of {self.max_index - 1}')
-            if self.index < self.max_index:
-                if self.before_next is not None:
-                    self.before_next(self)
-                
-                init_cache()
-
-                self.current_file = self.data.iloc[self.index]['Files']
-                self.current_remote_adresses = self.get_json_from_name(self.current_file)
-
-                self.can_local_address = await IRODSGet(self.current_remote_adresses['can'], local_temp_folder)
-                if ignore_gps_file:
-                    self.gps_local_address = None
-                else:
-                    self.gps_local_address = await IRODSGet(self.current_remote_adresses['gps'], local_temp_folder)
-
-                self.index += 1
-
-                # TODO:
-                # Keep this for file iterator over events
-                # local_addresses = self.cut_can_file()
-
-                if verbose:
-                    print(f'Download and preprocessing of {self.can_local_address} was successful')
-                
-                if self.after_next is not None:
-                    self.after_next(self)
-
-                if ignore_gps_file:
-                    return self.can_local_address
-                else:
-                    return {"can": self.can_local_address, "gps": self.gps_local_address}
-            else:
-                raise Exception('max_index')
-
-        except Exception as e:
-            raise Exception(f'Downloading next file failed on {e}')
-    
-    def reset(self):
-        '''
-        Resets the index to 0.
-        '''
-        self.index = 0
 

@@ -4,7 +4,6 @@ import pandas as pd
 from datetime import datetime
 import matplotlib.pyplot as plt
 from strym import strymread
-
 from .file_iterator import FileIteratorCanGps
 from .cache import init_cache
 from .cyverse_io_irods import IRODSPut
@@ -153,7 +152,7 @@ def find_crossing(speed, lead_distance, cruise_control_state, speed_treshold = 2
 
     return event_times, controller_states, speeds
 
-def plot_events_over_lead(name, lead, times, event_times):
+def plot_events_over_lead(name, lead_dist_ts, lead, times, event_times):
     """
     :param lead: Time series of the lead_distance
     :param times: Time series of the times (for the lead_distance)
@@ -166,6 +165,9 @@ def plot_events_over_lead(name, lead, times, event_times):
         else:
             return 0
     event_times_fake = [fake(time) for time in times]
+
+    # plot the time series
+    fig = strymread.plt_ts(lead_dist_ts, kwargs={"returnfig": True})
 
     # plot the figure
     fig, ax = plt.subplots()
@@ -185,13 +187,15 @@ def find_all_events_car_crossing_one_file(canfile, prev_treshold, next_treshold,
     From a CAN and a GPS file as well as analysis parameters, finds the useful information (all of the events tiles,
     as well as metadata about the acquisition and at event times)
     :param canfile: local path to the CSV of the CAN acquisition
-    :param prev_treshold: previous speed treshold for car crossing
-    :param next_treshold: next speed threshold for car crossing
+    :param prev_treshold: previous distance treshold for car crossing
+    :param next_treshold: next distance threshold for car crossing
     :param speed_treshold: minimum speed to consider a car crossing
+        All of those files are in m/s or meters
     :param verbose: set to True to have more extensive logs
     :param plot: set to True to plot the lead distance as well as the event times
     :param plot_name: name to give to the plot
     :param gpsfile: local path to the GPS of the CAN acquisition. Set to None to ignore.
+    
     NOTE: GPS file will not be used here. Indeed, strymmap only works within notebook
     
     :return: array of:
@@ -215,8 +219,7 @@ def find_all_events_car_crossing_one_file(canfile, prev_treshold, next_treshold,
                                                            verbose=verbose)
 
     if plot:
-        strymread.plt_ts(lead_dist)
-        plot_events_over_lead(plot_name, lead_dist['Message'], lead_dist['Time'], event_times)
+        plot_events_over_lead(plot_name, lead_dist, lead_dist['Message'], lead_dist['Time'], event_times)
 
     return event_times, event_cc_states, event_speeds, metadata
 
@@ -241,7 +244,7 @@ async def find_all_events_car_crossing(file_exploration_name: str, db_analysis_n
     if verbose:
         print('opening the file handler')    
 
-    file_iterator = FileIteratorCanGps(ignore_gps_file=True)
+    file_iterator = FileIteratorCanGps()
     local_exploration = await file_iterator.get_specific_user_exploration(file_exploration_name, clear_long_cache=True)
     file_iterator.filter(date=exploration_filters_date, vin=exploration_filters_vin)
 
@@ -255,11 +258,11 @@ async def find_all_events_car_crossing(file_exploration_name: str, db_analysis_n
 
     for index in range(file_iterator.index, file_iterator.max_index):
         if verbose:
-            print('\nINDEX is ', index, ' out of ', file_iterator.max_index)
+            print('\n\tINDEX is ', index, ' out of ', file_iterator.max_index)
 
         try:
             # download files
-            current_can_file, remote_can_file = await file_iterator.next()
+            current_can_file, remote_can_file = await file_iterator.next() 
             if verbose:
                 print('starting analysis of the file: ', current_can_file)
 

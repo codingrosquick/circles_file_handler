@@ -1,12 +1,10 @@
-import subprocess
 import os
 import ssl
 from irods.session import iRODSSession
 from .cache import remove_file_from_cache
 import json
 
-
-# implementation of the python client found here:
+# the source code for the implementation of the python client can be found here:
 # https://github.com/irods/python-irodsclient
 
 
@@ -122,5 +120,4 @@ async def IRODSPut(remote_address: str, local_address: str, session = None, clea
     
     except Exception as e:
         raise Exception(f'Error trying to upload file to CyVerse through IRODS. Failed on: {e}')
-
 

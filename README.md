@@ -34,10 +34,16 @@ python3 -m circles_file_iterator
 You may need to install IRODS command line afterwards if you haven't done it.
 You can do so by running the following commands, and inputting the desired fields:
 ```
-
+wget https://files.renci.org/pub/irods/releases/4.1.10/ubuntu14/irods-icommands-4.1.10-ubuntu14-x86_64.deb
+sudo apt-get install -y ./irods-icommands-4.1.10-ubuntu14-x86_64.deb
 iinit
 ```
+you can find more information on this topic at this address: https://irods.org/download/.
 
+If you use windows or mac OS, you can download the executable files, install, then execute the command:
+```
+iinit
+```
 
 ## Rebuilding the package for PyPI
 

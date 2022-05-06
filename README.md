@@ -10,7 +10,7 @@ It allows:
 - Iterating over files from CyVerse
 - Cache handling
 
-*(version 1.0.4)*
+*(version 1.0.4, availbale on the branch stable-v1.0.4)*
 - perform event analysis on a file
 - perform event analysis on all the files of a file exploration
 
